@@ -6,7 +6,7 @@ Pod::Spec.new do |s|
   A mix between the native iOS gallery and facebooks image picker. Allows you to preview and select multiple images.
   It is intended as a replacement for UIImagePickerController for both selecting and taking photos.
                        DESC
-  s.homepage         = "https://github.com/mikaoj/BSImagePicker"
+  s.homepage         = "https://github.com/rbrovko/BSImagePicker"
   s.license          = 'MIT'
   s.author           = { "Joakim Gyllström" => "joakim@backslashed.se" }
   s.source           = { :git => "https://github.com/rbrovko/BSImagePicker.git", :tag => s.version }
@@ -25,5 +25,5 @@ Pod::Spec.new do |s|
 
   s.frameworks = 'UIKit', 'Photos'
   s.dependency 'UIImageViewModeScaleAspect', '~> 1.3'
-  s.dependency 'BSGridCollectionViewLayout', '1.2.0-swift23-leyefe'
+  s.dependency 'BSGridCollectionViewLayout', '1.2.0-swift23-leyefe’, :git => "https://github.com/rbrovko/BSGridCollectionViewLayout.git"
 end
