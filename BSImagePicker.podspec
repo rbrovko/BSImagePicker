@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage         = "https://github.com/rbrovko/BSImagePicker"
   s.license          = 'MIT'
   s.author           = { "Joakim Gyllström" => "joakim@backslashed.se" }
-  s.source           = { :git => "https://github.com/rbrovko/BSImagePicker.git", :tag => s.version }
+  s.source           = { :git => "https://github.com/rbrovko/BSImagePicker.git", :tag => s.version.to_s }
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
@@ -25,5 +25,5 @@ Pod::Spec.new do |s|
 
   s.frameworks = 'UIKit', 'Photos'
   s.dependency 'UIImageViewModeScaleAspect', '~> 1.3'
-  s.dependency 'BSGridCollectionViewLayout', '1.2.0-swift23-leyefe’, :git => "https://github.com/rbrovko/BSGridCollectionViewLayout.git"
+  s.dependency 'BSGridCollectionViewLayout', '1.2.0-swift23-leyefe'
 end
