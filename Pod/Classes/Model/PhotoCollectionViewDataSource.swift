@@ -37,6 +37,16 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
     let settings: BSImagePickerSettings?
     var imageSize: CGSize = CGSizeZero
     
+    var changedOrientationImages = [String:UIImageOrientation]()
+    
+    func addPhoto(burstIdentifier identifier: String, newOrientation orientation: UIImageOrientation){
+        self.changedOrientationImages[identifier] = orientation
+    }
+    
+    func orientationByPhotoIdentifier(identifier:String) -> UIImageOrientation? {
+        return self.changedOrientationImages[identifier]
+    }
+    
   init(fetchResult: PHFetchResult, selections: PHFetchResult? = nil, settings: BSImagePickerSettings?) {
         self.fetchResult = fetchResult
         self.settings = settings
@@ -79,7 +89,16 @@ final class PhotoCollectionViewDataSource : NSObject, UICollectionViewDataSource
             
             // Request image
             cell.tag = Int(photosManager.requestImageForAsset(asset, targetSize: imageSize, contentMode: imageContentMode, options: nil) { (result, _) in
-                cell.imageView.image = result
+                
+                var gettedImage = result
+                
+                if let orientation = self.changedOrientationImages[asset.localIdentifier]{
+                    if gettedImage?.imageOrientation != orientation {
+                        gettedImage = UIImage.init(CGImage: gettedImage!.CGImage!, scale: gettedImage!.scale, orientation: orientation)
+                    }
+                }
+                
+                cell.imageView.image = gettedImage
             })
             
             // Set selection number

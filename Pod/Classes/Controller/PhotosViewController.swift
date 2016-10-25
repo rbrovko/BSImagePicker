@@ -24,11 +24,11 @@ import UIKit
 import Photos
 import BSGridCollectionViewLayout
 
-final class PhotosViewController : UICollectionViewController {    
+final class PhotosViewController : UICollectionViewController {
     var selectionClosure: ((asset: PHAsset) -> Void)?
     var deselectionClosure: ((asset: PHAsset) -> Void)?
     var cancelClosure: ((assets: [PHAsset]) -> Void)?
-    var finishClosure: ((assets: [PHAsset]) -> Void)?
+    var finishClosure: ((assets: [PHAsset], changedOrientation:[String:UIImageOrientation]) -> Void)?
     
     var doneBarButton: UIBarButtonItem?
     var cancelBarButton: UIBarButtonItem?
@@ -58,7 +58,9 @@ final class PhotosViewController : UICollectionViewController {
     }()
     
     private lazy var previewViewContoller: PreviewViewController? = {
-        return PreviewViewController(nibName: nil, bundle: nil)
+        let previewController =  PreviewViewController(nibName: nil, bundle: nil)
+        previewController.delegate = self
+        return previewController
     }()
     
     required init(fetchResults: [PHFetchResult], defaultSelections: PHFetchResult? = nil, settings aSettings: BSImagePickerSettings) {
@@ -126,6 +128,10 @@ final class PhotosViewController : UICollectionViewController {
         updateDoneButton()
     }
     
+    override func prefersStatusBarHidden() -> Bool {
+        return false
+    }
+    
     // MARK: Button actions
     func cancelButtonPressed(sender: UIBarButtonItem) {
         guard let closure = cancelClosure, let photosDataSource = photosDataSource else {
@@ -147,7 +153,7 @@ final class PhotosViewController : UICollectionViewController {
         }
         
         dispatch_async(dispatch_get_global_queue(0, 0), { () -> Void in
-            closure(assets: photosDataSource.selections)
+            closure(assets: photosDataSource.selections, changedOrientation: photosDataSource.changedOrientationImages)
         })
         
         dismissViewControllerAnimated(true, completion: nil)
@@ -184,10 +190,19 @@ final class PhotosViewController : UICollectionViewController {
                 let options = PHImageRequestOptions()
                 options.synchronous = true
                 
+                vc.burstIdentifier = asset.localIdentifier
+                
                 // Load image for preview
                 if let imageView = vc.imageView {
                     PHCachingImageManager.defaultManager().requestImageForAsset(asset, targetSize:imageView.frame.size, contentMode: .AspectFit, options: options) { (result, _) in
-                        imageView.image = result
+                        
+                        var img = result
+                        
+                        if let orientation = self.photosDataSource?.orientationByPhotoIdentifier(asset.localIdentifier) where orientation != img?.imageOrientation{
+                            img = UIImage.init(CGImage: img!.CGImage!, scale: img!.scale, orientation: orientation)
+                        }
+                        
+                        imageView.image = img
                     }
                 }
                 
@@ -435,6 +450,20 @@ extension PhotosViewController: UINavigationControllerDelegate {
         } else {
             return shrinkAnimator
         }
+    }
+}
+
+// MARK : PreviewViewControllerProtocol
+
+extension PhotosViewController : PreviewViewControllerProtocol {
+    func changeOrientation(previewController: PreviewViewController, burstIdentifier identifier: String?, newOrientation: UIImageOrientation) {
+        
+        if let bId = identifier {
+            self.photosDataSource?.addPhoto(burstIdentifier: bId, newOrientation: newOrientation)
+            
+            self.collectionView?.reloadData()
+        }
+        
     }
 }
 

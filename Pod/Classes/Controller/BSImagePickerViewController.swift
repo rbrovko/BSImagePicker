@@ -62,7 +62,6 @@ public class BSImagePickerViewController : UINavigationController {
         
         return [cameraRollResult, albumResult]
     }()
-
     
     var albumTitleView: AlbumTitleView = bundle.loadNibNamed("AlbumTitleView", owner: nil, options: nil)!.first as! AlbumTitleView
     
